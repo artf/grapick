@@ -5,7 +5,7 @@ export default class Grapick {
   constructor(options = {}) {
     this.handlers = [];
     const defaults = {
-      // HTMLElement - string
+      // HTMLElement/string el on which attach the gradient input
       el: '',
 
       colorEl: '',
@@ -69,27 +69,46 @@ export default class Grapick {
   /**
    * Get the complete style value
    * @return {string}
+   * @example
+   * const ga = new Grapick({...});
+   * ga.addHandler(0, '#000');
+   * ga.addHandler(55, 'white');
+   * console.log(ga.getValue());
+   * // -> `linear-gradient(left, #000 0%, white 55%)`
    */
   getValue() {
-    return `${this.getType()}-gradient(${this.getDirection()}, ${this.getColorValue()});`;
+    return `${this.getType()}-gradient(${this.getDirection()}, ${this.getColorValue()})`;
   }
 
   /**
    * Get only colors value
    * @return {string}
+   * @example
+   * const ga = new Grapick({...});
+   * ga.addHandler(0, '#000');
+   * ga.addHandler(55, 'white');
+   * console.log(ga.getColorValue());
+   * // -> `#000 0%, white 55%`
    */
   getColorValue() {
-    return 'rgba(30,87,153,1) 0%,rgba(32,124,202,1) 24%,rgba(32,124,202,1) 59%,rgba(32,124,202,1) 76%,rgba(125,185,232,1) 91%';
+    return this.handlers.map(handler => handler.getValue()).join(', ');
   }
 
   /**
    * Get an array with browser specific values
    * @return {Array}
+   * @example
+   * const ga = new Grapick({...});
+   * ga.addHandler(0, '#000');
+   * ga.addHandler(55, 'white');
+   * console.log(ga.getPrefixedValues());
+   * // -> [
+   *  "-moz-linear-gradient(left, #000 0%, white 55%)",
+   *  "-webkit-linear-gradient(left, #000 0%, white 55%)"
+   * ]
    */
   getPrefixedValues() {
-    return ['-moz-', '-webkit-'].map(prefix => {
-      `${prefix}${this.getValue()}`
-    });
+    return ['-moz-', '-webkit-'].map(prefix => `${prefix}${this.getValue()}`);
   }
 
   /**

@@ -49,6 +49,33 @@ describe('Grapick', () => {
       expect(h.isSelected()).toBe(false);
       expect(ga.getHandlers().length).toBe(1);
     });
+
+    it('Get color values', () => {
+      ga.addHandler(0, '#000');
+      expect(ga.getColorValue()).toBe('#000 0%');
+    });
+
+    it('Get color values from more handlers', () => {
+      ga.addHandler(0, '#000');
+      ga.addHandler(55, 'white');
+      ga.addHandler(100, 'rgba(11, 23, 44, 1)');
+      expect(ga.getColorValue()).toBe('#000 0%, white 55%, rgba(11, 23, 44, 1) 100%');
+    });
+
+    it('Get value', () => {
+      ga.addHandler(0, '#000');
+      ga.addHandler(55, 'white');
+      expect(ga.getValue()).toBe('linear-gradient(left, #000 0%, white 55%)');
+    });
+
+    it('Get prefixed values', () => {
+      ga.addHandler(0, '#000');
+      ga.addHandler(55, 'white');
+      expect(ga.getPrefixedValues()).toEqual([
+        '-moz-linear-gradient(left, #000 0%, white 55%)',
+        '-webkit-linear-gradient(left, #000 0%, white 55%)'
+      ]);
+    });
   });
 
   describe('Grapick Handler', () => {
