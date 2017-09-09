@@ -1,0 +1,44 @@
+{
+  "name": "grapick",
+  "version": "0.0.1",
+  "description": "Easy configurable gradient picker, with no dependencies",
+  "author": "Artur Arseniev",
+  "main": "src/index.js",
+  "license": "MIT",
+  "keywords": [
+    "gradient",
+    "color",
+    "picker"
+  ],
+  "scripts": {
+    "lint": "eslint src",
+    "build": "cross-env WEBPACK_ENV=prod && npm run lint && npm run test && npm run v:patch && webpack && npm run build:css",
+    "build:css": "node-sass src/styles/scss/main.scss dist/css/grapes.min.css --output-style compressed",
+    "v:patch": "npm version --no-git-tag-version patch",
+    "start": "cross-env WEBPACK_ENV=dev webpack-dev-server --progress --colors & npm run build:css -- -w",
+    "test": "jest --coverage",
+    "test:dev": "npm test -- --watch"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "cross-env": "^5.0.5",
+    "eslint": "^4.6.1",
+    "jest": "^21.0.2",
+    "node-sass": "^4.5.3",
+    "webpack": "^3.5.6",
+    "webpack-dev-server": "^2.7.1"
+  },
+  "jest": {
+    "collectCoverageFrom": ["src/**/*.js"],
+    "testRegex": "test/index.js"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "stage-3"
+    ]
+  }
+}
