@@ -1,10 +1,12 @@
 export default class Handler {
-  constructor(Grapick, position = 0, color = 'black') {
+
+  constructor(Grapick, position = 0, color = 'black', select = 1) {
     Grapick.getHandlers().push(this);
     this.gp = Grapick;
     this.position = position;
     this.color = color;
-    this.selected = 0;
+    this.render();
+    select && this.select();
   }
 
   /**
@@ -16,7 +18,7 @@ export default class Handler {
    */
   setColor(color, complete = 1) {
     this.color = color;
-    this.gp.change(complete);
+    this.emit('handler:color:change', this, complete);
   }
 
   /**
@@ -27,8 +29,10 @@ export default class Handler {
    * handler.setPosition(55);
    */
   setPosition(position, complete = 1) {
+    const el = this.getEl();
     this.position = position;
-    this.gp.change(complete);
+    el && (el.style.left = `${position}%`);
+    this.emit('handler:position:change', this, complete);
   }
 
   /**
@@ -69,20 +73,29 @@ export default class Handler {
    * Select the current handler and deselect others
    */
   select() {
+    const el = this.getEl();
     const handlers = this.gp.getHandlers();
     handlers.forEach(handler => handler.deselect());
     this.selected = 1;
-    const onSelect = this.onHandleSelect;
-    onSelect && onSelect(this);
+    const clsNameSel = this.getSelectedCls();
+    el && (el.className += ` ${clsNameSel}`);
+    this.emit('handler:select', this);
   }
 
   /**
    * Deselect the current handler
    */
   deselect() {
+    const el = this.getEl();
     this.selected = 0;
-    const onDeselect = this.onHandleDeselect;
-    onDeselect && onDeselect(this);
+    const clsNameSel = this.getSelectedCls();
+    el && (el.className = el.className.replace(clsNameSel, '').trim());
+    this.emit('handler:deselect', this);
+  }
+
+  getSelectedCls() {
+    const pfx = this.gp.options.pfx;
+    return `${pfx}-handler-selected`;
   }
 
   /**
@@ -90,9 +103,137 @@ export default class Handler {
    * @return {Handler} Removed handler (itself)
    */
   remove() {
+    const el = this.getEl();
     const handlers = this.gp.getHandlers();
-    const removed = handlers.splice(handlers.indexOf(this), 1);
-    return removed[0];
+    const removed = handlers.splice(handlers.indexOf(this), 1)[0];
+    el && el.parentNode.removeChild(el);
+    this.emit('handler:remove', removed);
+    return removed;
   }
 
+  /**
+   * Get handler element
+   * @return {HTMLElement}
+   */
+  getEl() {
+    return this.el;
+  }
+
+  initEvents() {
+    const el = this.getEl();
+    const previewEl = this.gp.previewEl;
+    const closeEl = el.querySelector('[data-toggle=handler-close]');
+    const colorContEl = el.querySelector('[data-toggle=handler-color-c]');
+    const colorWrapEl = el.querySelector('[data-toggle=handler-color-wrap]');
+    const colorEl = el.querySelector('[data-toggle=handler-color]');
+    const dragEl = el.querySelector('[data-toggle=handler-drag]');
+    colorContEl && colorContEl.addEventListener('click', e => e.stopPropagation());
+    closeEl && closeEl.addEventListener('click', e => {
+      e.stopPropagation();
+      this.remove()
+    });
+    colorEl && colorEl.addEventListener('change', e => {
+      const target = e.target;
+      const value = target.value;
+      this.setColor(value);
+      colorWrapEl && (colorWrapEl.style.backgroundColor = value);
+    });
+
+    if (dragEl) {
+      let pos = 0;
+      let posInit = 0;
+      let dragged = 0;
+      const elDim = {};
+      const startPos = {};
+      const deltaPos = {};
+      const axis = 'x';
+      const drag = e => {
+        dragged = 1;
+        deltaPos.x = e.clientX - startPos.x;
+        deltaPos.y = e.clientY - startPos.y;
+        pos = (axis == 'x' ? deltaPos.x : deltaPos.y) * 100;
+        pos = pos / (axis == 'x' ? elDim.w : elDim.h);
+        pos = posInit + pos;
+        pos = pos < 0 ? 0 : pos;
+        pos = pos > 100 ? 100 : pos;
+        this.setPosition(pos, 0);
+        this.emit('handler:drag', this, pos);
+        // In case the mouse button was released outside of the window
+        e.which === 0 && stopDrag(e);
+      };
+      const stopDrag = e => {
+        if (!dragged) {
+          return;
+        }
+        dragged = 0;
+        this.setPosition(pos);
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', stopDrag);
+        this.emit('handler:drag:end', this, pos);
+      };
+      const initDrag = e => {
+        //Right or middel click
+        if (e.button !== 0) {
+          return;
+        }
+        this.select();
+        posInit = this.position;
+        elDim.w = previewEl.clientWidth;
+        elDim.h = previewEl.clientHeight;
+        startPos.x = e.clientX;
+        startPos.y = e.clientY;
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDrag);
+        this.emit('handler:drag:start', this);
+      };
+
+      dragEl.addEventListener('mousedown', initDrag);
+      dragEl.addEventListener('click', e => e.stopPropagation());
+    }
+  }
+
+  emit() {
+    this.gp.emit(...arguments);
+  }
+
+  /**
+   * Render the handler
+   * @return {HTMLElement} Rendered element
+   */
+  render() {
+    const gp = this.gp;
+    const opt = gp.options;
+    const previewEl = gp.previewEl;
+    const pfx = opt.pfx;
+    const colorEl = opt.colorEl;
+    const color = this.getColor();
+
+    if (!previewEl) {
+      return;
+    }
+
+    const hEl = document.createElement('div');
+    const style = hEl.style;
+    const baseCls = `${pfx}-handler`;
+    hEl.className = baseCls;
+    hEl.innerHTML = `
+      <div class="${baseCls}-close-c">
+        <div class="${baseCls}-close" data-toggle="handler-close">&Cross;</div>
+      </div>
+      <div class="${baseCls}-drag" data-toggle="handler-drag"></div>
+      <div class="${baseCls}-cp-c" data-toggle="handler-color-c">
+        ${colorEl || `
+          <div class="${baseCls}-cp-wrap" data-toggle="handler-color-wrap" style="background-color: ${color}">
+            <input type="color" data-toggle="handler-color" value="${color}">
+          </div>`}
+      </div>
+    `;
+    style.position = 'absolute';
+    style.top = 0;
+    style.left = `${this.position}%`;
+    previewEl.appendChild(hEl);
+    this.el = hEl;
+    this.initEvents();
+    return hEl;
+  }
 }

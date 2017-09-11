@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Grapick Dev</title>
+    <link rel="stylesheet" href="dist/grapick.min.css">
+    <script src="dist/grapick.min.js"></script>
+  </head>
+  <body>
+    <div style="padding:100px">
+      <div id="grapick" style="width: 200px"></div>
+    </div>
+
+    <script type="text/javascript">
+      var gp = new Grapick({el: '#grapick'});
+      gp.addHandler(0, 'red');
+      gp.addHandler(100, 'blue');
+      console.log(gp.getHandlers());
+
+      gp.on('handler:remove', function(h) {
+        console.log('removed handler', h);
+      });
+
+      gp.on('change', function(complete) {
+        console.log('changed ', complete, gp.getValue());
+      })
+    </script>
+  </body>
+</html>

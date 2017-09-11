@@ -1,4 +1,3 @@
 import Grapick from './Grapick'
-import Handler from './Handler'
 
-export { Grapick, Handler }
+module.exports = (o) => new Grapick(o)

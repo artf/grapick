@@ -1,39 +1,55 @@
+import EventEmitter from 'tiny-emitter';
 import Handler from './Handler'
 
-export default class Grapick {
+const comparator = (l, r) => {
+  return l.position - r.position;
+}
+
+export default class Grapick extends EventEmitter {
 
   constructor(options = {}) {
-    this.handlers = [];
+    super();
+    const pfx = 'grp';
+    options = Object.assign({}, options);
     const defaults = {
+      // Class prefix
+      pfx,
+
       // HTMLElement/string el on which attach the gradient input
-      el: '',
+      el: `.${pfx}`,
 
       colorEl: '',
+
+      // Indicates when show the color picker; default: 'selected';
+      // options: 'always' | 'selected' | false
+      showColorPicker: 'selected',
 
       // Any supported direction: top, left, bottom, right, 90deg, etc.
       direction: 'left',
 
-      // Gradient type, available options: 'linear' or 'radial'
+      // Gradient type, available options: 'linear' | 'radial' | 'repeating-linear' | 'repeating-radial'
       type: 'linear',
 
       // Gradient input height
-      height: '20px',
+      height: '30px',
 
       // Gradient input width
       width: '100%',
-
-      // Initial handlers
-      handlers: [
-        {color: '#000', position: 0},
-        {color: '#fff', position: 100},
-      ],
     };
 
     for (let name in defaults) {
       if (!(name in options))
         options[name] = defaults[name];
     }
+
+    let el = options.el;
+    el = typeof el == 'string' ? document.querySelector(el) : el;
+    this.el = el;
+    this.handlers = [];
     this.options = options;
+    this.on('handler:color:change', (h, c) => this.change(c));
+    this.on('handler:position:change', (h, c) => this.change(c));
+    this.on('handler:remove', h => this.change(1));
     this.render();
   }
 
@@ -42,8 +58,7 @@ export default class Grapick {
    * @param {Object} cp Color picker interface
    * @example
    * // TAKE IN ACCOUNT a single color picker instance
-   * gi.setColorPicker({
-   *  init(handler) {
+   * gi.setColorPicker(handler => {
    *    const colorEl = handler.getColorEl();
    *
    *    // Or you might face something like this
@@ -59,7 +74,6 @@ export default class Grapick {
    *    $(colorEl).colorPicker3({...}).on('change', () => {
    *      handler.setColor(this.value);
    *    })
-   *  },
    * })
    */
   setColorPicker(cp) {
@@ -77,7 +91,8 @@ export default class Grapick {
    * // -> `linear-gradient(left, #000 0%, white 55%)`
    */
   getValue() {
-    return `${this.getType()}-gradient(${this.getDirection()}, ${this.getColorValue()})`;
+    const color = this.getColorValue();
+    return color ? `${this.getType()}-gradient(${this.getDirection()}, ${color})` : '';
   }
 
   /**
@@ -91,7 +106,10 @@ export default class Grapick {
    * // -> `#000 0%, white 55%`
    */
   getColorValue() {
-    return this.handlers.map(handler => handler.getValue()).join(', ');
+    let handlers = this.handlers;
+    handlers.sort(comparator);
+    handlers = handlers.length == 1 ? [handlers[0], handlers[0]] : handlers;
+    return handlers.map(handler => handler.getValue()).join(', ');
   }
 
   /**
@@ -105,10 +123,13 @@ export default class Grapick {
    * // -> [
    *  "-moz-linear-gradient(left, #000 0%, white 55%)",
    *  "-webkit-linear-gradient(left, #000 0%, white 55%)"
+   *  "-o-linear-gradient(left, #000 0%, white 55%)"
    * ]
    */
   getPrefixedValues() {
-    return ['-moz-', '-webkit-'].map(prefix => `${prefix}${this.getValue()}`);
+    const value = this.getValue();
+    return ['-moz-', '-webkit-', '-o-', '-ms-'].map(prefix =>
+      `${prefix}${value}`);
   }
 
   /**
@@ -120,20 +141,12 @@ export default class Grapick {
   }
 
   /**
-   * Set on handle select callback
-   * @param  {Function} clb Callback function
-   */
-  onHandleSelect(clb) {
-    this.onHandleSelect = clb
-  }
-
-  /**
    * Trigger change
    * @param {Boolean} complete Indicates if the change is complete (eg. while dragging is not complete)
    */
   change(complete = 1) {
-    const onChange = this.onChangeClb;
-    onChange && onChange(this, complete);
+    this.updatePreview();
+    this.emit('change', complete);
   }
 
   /**
@@ -200,9 +213,109 @@ export default class Grapick {
   }
 
   /**
+   * Return selected handler if one exists
+   * @return {Handler|null}
+   */
+  getSelected() {
+    const handlers = this.getHandlers();
+
+    for (let i = 0; i < handlers.length; i++) {
+      let handler = handlers[i];
+
+      if (handler.isSelected()) {
+        return handler;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Update preview element
+   */
+  updatePreview() {
+    const previewEl = this.previewEl;
+    const value = this.getValue();
+
+    if (!previewEl || !value) {
+      return;
+    }
+
+    const style = previewEl.style;
+    const values = [value, ...this.getPrefixedValues()];
+
+    for (let i = 0; i < values.length; i++) {
+      let val = values[i];
+      style.background = val;
+
+      if (style.background == val) {
+          break;
+      }
+    }
+  }
+
+  initEvents() {
+    const pEl = this.previewEl;
+    let percentage = 0;
+    const elDim = {};
+    pEl && pEl.addEventListener('click', e => {
+      // First of all, find a position of the click in percentage
+      elDim.w = pEl.clientWidth;
+      elDim.h = pEl.clientHeight;
+      const x = e.pageX - pEl.offsetLeft - pEl.clientLeft;
+      const y = e.pageY - pEl.offsetTop - pEl.clientTop;
+      percentage = x / elDim.w * 100;
+
+      if (percentage > 100 || percentage < 0) {
+        return;
+      }
+
+      // Now let's find the pixel color by using the canvas
+      let canvas = document.createElement('canvas');
+      let context = canvas.getContext('2d');
+      canvas.width = elDim.w;
+      canvas.height = elDim.h;
+      let grad = context.createLinearGradient(0, 0, elDim.w, elDim.h);
+      this.getHandlers().forEach(h => grad.addColorStop(h.position/100, h.color));
+      context.fillStyle = grad;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      canvas.style.background = 'black';
+      const rgba = canvas.getContext('2d').getImageData(x, y, 1, 1).data;
+      const color = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3]})`;
+      this.addHandler(percentage, color);
+    });
+  }
+
+  /**
    * Render the preview picker
    */
   render() {
+    const opt = this.options;
+    const el = this.el;
+    const pfx = opt.pfx;
+    const height = opt.height;
+    const width = opt.width;
 
+    if (!el) {
+      return;
+    }
+
+    const preview = document.createElement('div');
+    const style = preview.style;
+    style.position = 'relative';
+    preview.className = `${pfx}-preview`;
+    this.previewEl = preview;
+    el.appendChild(preview);
+
+    if (height) {
+      style.height = height;
+    }
+
+    if (width) {
+      style.width = width;
+    }
+
+    this.initEvents();
+    this.updatePreview();
   }
 }

@@ -1,7 +1,7 @@
 var webpack = require('webpack');
 var pkg = require('./package.json');
 var env = process.env.WEBPACK_ENV;
-var name = 'gradient-picker';
+var name = 'grapick';
 var plugins = [];
 
 if(env !== 'dev') {
@@ -16,7 +16,7 @@ module.exports = {
   entry: './src',
   output: {
       filename: './dist/' + name + '.min.js',
-      library: name,
+      library: 'Grapick',
       libraryTarget: 'umd',
   },
   plugins: plugins,

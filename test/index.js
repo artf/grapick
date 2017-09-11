@@ -1,4 +1,5 @@
-import {Grapick, Handler} from './../src';
+import Grapick from './../src';
+import Handler from './../src/Handler';
 
 let ga;
 let gah;
@@ -15,13 +16,13 @@ describe('Grapick', () => {
       ga = new Grapick();
     });
 
-    it('Default type is linear', () => {
-      expect(ga.getType()).toBe('linear');
-    });
-
     it('Able to change type', () => {
       ga.setType('radial');
       expect(ga.getType()).toBe('radial');
+    });
+
+    it('Default type is linear', () => {
+      expect(ga.getType()).toBe('linear');
     });
 
     it('Default direction is left', () => {
@@ -73,7 +74,9 @@ describe('Grapick', () => {
       ga.addHandler(55, 'white');
       expect(ga.getPrefixedValues()).toEqual([
         '-moz-linear-gradient(left, #000 0%, white 55%)',
-        '-webkit-linear-gradient(left, #000 0%, white 55%)'
+        '-webkit-linear-gradient(left, #000 0%, white 55%)',
+        '-o-linear-gradient(left, #000 0%, white 55%)',
+        '-ms-linear-gradient(left, #000 0%, white 55%)'
       ]);
     });
   });
