@@ -47,13 +47,14 @@ describe('Grapick', () => {
       expect(h).toBeDefined();
       expect(h instanceof Handler).toBe(true);
       expect(h.getColor()).toBe('#fff');
-      expect(h.isSelected()).toBe(false);
+      expect(h.isSelected()).toBe(true);
       expect(ga.getHandlers().length).toBe(1);
     });
 
-    it('Get color values', () => {
+    it('Get color values from single handler', () => {
       ga.addHandler(0, '#000');
-      expect(ga.getColorValue()).toBe('#000 0%');
+      // Prevent error with one single handler
+      expect(ga.getColorValue()).toBe('#000 0%, #000 0%');
     });
 
     it('Get color values from more handlers', () => {
@@ -93,7 +94,7 @@ describe('Grapick', () => {
     });
 
     it('Check default selection', () => {
-      expect(gah.isSelected()).toBe(false);
+      expect(gah.isSelected()).toBe(true);
     });
 
     it('Check default position', () => {

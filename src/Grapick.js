@@ -1,5 +1,6 @@
-import EventEmitter from 'tiny-emitter';
+import EventEmitter from 'tiny-emitter'
 import Handler from './Handler'
+import {on} from './utils'
 
 const comparator = (l, r) => {
   return l.position - r.position;
@@ -20,9 +21,11 @@ export default class Grapick extends EventEmitter {
 
       colorEl: '',
 
-      // Indicates when show the color picker; default: 'selected';
-      // options: 'always' | 'selected' | false
-      showColorPicker: 'selected',
+      // Minimum handler position
+      min: 0,
+
+      // Maximum handler position
+      max: 100,
 
       // Any supported direction: top, left, bottom, right, 90deg, etc.
       direction: 'left',
@@ -93,6 +96,34 @@ export default class Grapick extends EventEmitter {
   getValue() {
     const color = this.getColorValue();
     return color ? `${this.getType()}-gradient(${this.getDirection()}, ${color})` : '';
+  }
+
+  /**
+   * Get the gradient value with the browser prefix if necessary
+   * @return {string}
+   */
+  getSafeValue() {
+    const previewEl = this.previewEl;
+    const value = this.getValue();
+    !this.sandEl && (this.sandEl = document.createElement('div'))
+
+    if (!previewEl || !value) {
+      return;
+    }
+
+    const style = this.sandEl.style;
+    const values = [value, ...this.getPrefixedValues()];
+
+    for (let i = 0; i < values.length; i++) {
+      let val = values[i];
+      style.background = val;
+
+      if (style.background == val) {
+          break;
+      }
+    }
+
+    return style.background;
   }
 
   /**
@@ -187,10 +218,11 @@ export default class Grapick extends EventEmitter {
    * Add gradient handler
    * @param {integer} position Position integer in percentage
    * @param {string} color Color string, eg. red, #123, 'rgba(30,87,153,1)', etc..
+   * @param {Boolean} select Select the handler once it's added
    * @return {Object} Handler object
    */
-  addHandler(position, color) {
-    const handler = new Handler(this, position, color);
+  addHandler(position, color, select = 1) {
+    const handler = new Handler(this, position, color, select);
     this.change();
     return handler;
   }
@@ -235,38 +267,25 @@ export default class Grapick extends EventEmitter {
    */
   updatePreview() {
     const previewEl = this.previewEl;
-    const value = this.getValue();
-
-    if (!previewEl || !value) {
-      return;
-    }
-
-    const style = previewEl.style;
-    const values = [value, ...this.getPrefixedValues()];
-
-    for (let i = 0; i < values.length; i++) {
-      let val = values[i];
-      style.background = val;
-
-      if (style.background == val) {
-          break;
-      }
-    }
+    previewEl && (previewEl.style.background = this.getSafeValue());
   }
 
   initEvents() {
+    const opt = this.options;
+    const min = opt.min;
+    const max = opt.max;
     const pEl = this.previewEl;
     let percentage = 0;
     const elDim = {};
-    pEl && pEl.addEventListener('click', e => {
+    pEl && on(pEl, 'click', e => {
       // First of all, find a position of the click in percentage
       elDim.w = pEl.clientWidth;
       elDim.h = pEl.clientHeight;
-      const x = e.pageX - pEl.offsetLeft - pEl.clientLeft;
-      const y = e.pageY - pEl.offsetTop - pEl.clientTop;
+      const x = e.offsetX - pEl.clientLeft;
+      const y = e.offsetY - pEl.clientTop;
       percentage = x / elDim.w * 100;
 
-      if (percentage > 100 || percentage < 0) {
+      if (percentage > max || percentage < min) {
         return;
       }
 
@@ -300,19 +319,26 @@ export default class Grapick extends EventEmitter {
       return;
     }
 
-    const preview = document.createElement('div');
-    const style = preview.style;
-    style.position = 'relative';
-    preview.className = `${pfx}-preview`;
-    this.previewEl = preview;
-    el.appendChild(preview);
+    const wrapperCls = `${pfx}-wrapper`;
+    const previewCls = `${pfx}-preview`;
+    el.innerHTML = `
+      <div class="${wrapperCls}">
+        <div class="${previewCls}"></div>
+      </div>
+    `;
+    const wrapperEl = el.querySelector(`.${wrapperCls}`);
+    const previewEl = el.querySelector(`.${previewCls}`);
+    const styleWrap = wrapperEl.style;
+    styleWrap.position = 'relative';
+    this.wrapperEl = wrapperEl;
+    this.previewEl = previewEl;
 
     if (height) {
-      style.height = height;
+      styleWrap.height = height;
     }
 
     if (width) {
-      style.width = width;
+      styleWrap.width = width;
     }
 
     this.initEvents();

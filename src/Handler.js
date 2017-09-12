@@ -1,3 +1,5 @@
+import {on, off} from './utils'
+
 export default class Handler {
 
   constructor(Grapick, position = 0, color = 'black', select = 1) {
@@ -120,19 +122,25 @@ export default class Handler {
   }
 
   initEvents() {
+    const eventDown = 'touchstart mousedown';
+    const eventMove = 'touchmove mousemove';
+    const eventUp = 'touchend mouseup';
     const el = this.getEl();
     const previewEl = this.gp.previewEl;
+    const options = this.gp.options;
+    const min = options.min;
+    const max = options.max;
     const closeEl = el.querySelector('[data-toggle=handler-close]');
     const colorContEl = el.querySelector('[data-toggle=handler-color-c]');
     const colorWrapEl = el.querySelector('[data-toggle=handler-color-wrap]');
     const colorEl = el.querySelector('[data-toggle=handler-color]');
     const dragEl = el.querySelector('[data-toggle=handler-drag]');
-    colorContEl && colorContEl.addEventListener('click', e => e.stopPropagation());
-    closeEl && closeEl.addEventListener('click', e => {
+    colorContEl && on(colorContEl, 'click', e => e.stopPropagation());
+    closeEl && on(closeEl, 'click', e => {
       e.stopPropagation();
       this.remove()
     });
-    colorEl && colorEl.addEventListener('change', e => {
+    colorEl && on(colorEl, 'change', e => {
       const target = e.target;
       const value = target.value;
       this.setColor(value);
@@ -154,8 +162,8 @@ export default class Handler {
         pos = (axis == 'x' ? deltaPos.x : deltaPos.y) * 100;
         pos = pos / (axis == 'x' ? elDim.w : elDim.h);
         pos = posInit + pos;
-        pos = pos < 0 ? 0 : pos;
-        pos = pos > 100 ? 100 : pos;
+        pos = pos < min ? min : pos;
+        pos = pos > max ? max : pos;
         this.setPosition(pos, 0);
         this.emit('handler:drag', this, pos);
         // In case the mouse button was released outside of the window
@@ -167,8 +175,8 @@ export default class Handler {
         }
         dragged = 0;
         this.setPosition(pos);
-        document.removeEventListener('mousemove', drag);
-        document.removeEventListener('mouseup', stopDrag);
+        off(document, eventMove, drag);
+        off(document, eventUp, stopDrag);
         this.emit('handler:drag:end', this, pos);
       };
       const initDrag = e => {
@@ -182,13 +190,13 @@ export default class Handler {
         elDim.h = previewEl.clientHeight;
         startPos.x = e.clientX;
         startPos.y = e.clientY;
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', stopDrag);
+        on(document, eventMove, drag);
+        on(document, eventUp, stopDrag);
         this.emit('handler:drag:start', this);
       };
 
-      dragEl.addEventListener('mousedown', initDrag);
-      dragEl.addEventListener('click', e => e.stopPropagation());
+      on(dragEl, eventDown, initDrag);
+      on(dragEl, 'click', e => e.stopPropagation());
     }
   }
 
