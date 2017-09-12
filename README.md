@@ -3,7 +3,7 @@
 
 Easy configurable gradient picker, with no dependencies.
 
-<p align="center"><img src="https://artf.github.io/grapick/assets/img/grapick.jpg" alt="Grapick" align="center"/></p>
+<p align="center"><img src="https://artf.github.io/grapick/assets/img/grapick.jpg" align="center"/></p>
 
 [Demo](https://artf.github.io/grapick)
 
