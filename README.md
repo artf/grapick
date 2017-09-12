@@ -44,9 +44,40 @@ Download the file from [here](https://cdn.rawgit.com/artf/grapick/master/dist/gr
 
 ## Extend color picker
 
-Grapick uses the browser's native color picker by default
+Grapick is color picker independent and uses the browser's native one by default just to make it more accessible, but you can easily attach one of your choices.
+
+In the example below we use spectrum color picker just as the proof of concept
+
+```html
+<script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
+
+<div id="gp"></div>
 
 
+<script type="text/javascript">
+  const gp = new Grapick({
+    el: '#gp',
+    colorEl: '<input id="colorpicker"/>' // I'll use this for the custom color picker
+  });
+
+  gp.setColorPicker(handler => {
+    const el = handler.getEl().querySelector('#colorpicker');
+
+    $(el).spectrum({
+        color: handler.getColor(),
+        showAlpha: true,
+        change(color) {
+          handler.setColor(color.toRgbString());
+        },
+        move(color) {
+          handler.setColor(color.toRgbString(), 0);
+        }
+    });
+  });
+</script>
+```
 
 
 

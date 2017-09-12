@@ -68,12 +68,15 @@ export default class Grapick extends EventEmitter {
    * Set custom color picker
    * @param {Object} cp Color picker interface
    * @example
-   * // TAKE IN ACCOUNT a single color picker instance
-   * gi.setColorPicker(handler => {
-   *    const colorEl = handler.getColorEl();
+   * const gp = new Grapick({
+   *  el: '#gp',
+   *  colorEl: '<input id="colorpicker"/>'
+   * });
+   * gp.setColorPicker(handler => {
+   *    const colorEl = handler.getEl().querySelector('#colorpicker');
    *
    *    // Or you might face something like this
-   *    colorPicker2({
+   *    colorPicker({
    *      el: colorEl,
    *      startColoer: handler.getColor(),
    *      change(color) {
@@ -82,7 +85,7 @@ export default class Grapick extends EventEmitter {
    *    });
    *
    *    // jQuery style color picker
-   *    $(colorEl).colorPicker3({...}).on('change', () => {
+   *    $(colorEl).colorPicker2({...}).on('change', () => {
    *      handler.setColor(this.value);
    *    })
    * })

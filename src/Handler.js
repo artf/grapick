@@ -212,6 +212,7 @@ export default class Handler {
     const gp = this.gp;
     const opt = gp.options;
     const previewEl = gp.previewEl;
+    const colorPicker = gp.colorPicker;
     const pfx = opt.pfx;
     const colorEl = opt.colorEl;
     const color = this.getColor();
@@ -242,6 +243,7 @@ export default class Handler {
     previewEl.appendChild(hEl);
     this.el = hEl;
     this.initEvents();
+    colorPicker && colorPicker(this);
     return hEl;
   }
 }
