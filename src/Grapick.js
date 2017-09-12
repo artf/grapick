@@ -60,6 +60,7 @@ export default class Grapick extends EventEmitter {
     this.on('handler:color:change', (h, c) => this.change(c));
     this.on('handler:position:change', (h, c) => this.change(c));
     this.on('handler:remove', h => this.change(1));
+    this.on('handler:add', h => this.change(1));
     this.render();
   }
 
@@ -223,7 +224,7 @@ export default class Grapick extends EventEmitter {
    */
   addHandler(position, color, select = 1) {
     const handler = new Handler(this, position, color, select);
-    this.change();
+    this.emit('handler:add', handler);
     return handler;
   }
 
