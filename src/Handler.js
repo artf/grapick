@@ -1,5 +1,8 @@
 import {on, off} from './utils'
 
+/**
+ * Handler is the color stop of the gradient
+ */
 export default class Handler {
 
   constructor(Grapick, position = 0, color = 'black', select = 1) {

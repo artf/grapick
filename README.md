@@ -1,6 +1,9 @@
 # [Grapick](https://artf.github.io/grapick)
 
+
 Easy configurable gradient picker, with no dependencies.
+
+<p align="center"><img src="https://artf.github.io/grapick/img/grapick.jpg" alt="Grapick" align="center"/></p>
 
 [Demo](https://artf.github.io/grapick)
 
@@ -10,7 +13,7 @@ Easy configurable gradient picker, with no dependencies.
 
 ## Download
 
-Download the file from [here](https://cdn.rawgit.com/artf/grapick/master/dist/grapick.min.js) ([CSS](https://cdn.rawgit.com/artf/grapick/master/dist/grapick.min.css)), via `npm i grapick` or get it directly from the `/dist` folder
+You can download the file from [here](https://cdn.rawgit.com/artf/grapick/master/dist/grapick.min.js) ([CSS](https://cdn.rawgit.com/artf/grapick/master/dist/grapick.min.css)), via `npm i grapick` or directly from the `/dist` folder of this repo
 
 
 
@@ -31,7 +34,7 @@ Download the file from [here](https://cdn.rawgit.com/artf/grapick/master/dist/gr
   gp.addHandler(0, 'red');
   gp.addHandler(100, 'blue');
 
-  // Do stuff on change
+  // Do stuff on change of the gradient
   gp.on('change', complete => {
     document.body.style.background = gp.getSafeValue();
   })
@@ -42,11 +45,11 @@ Download the file from [here](https://cdn.rawgit.com/artf/grapick/master/dist/gr
 
 
 
-## Extend color picker
+## Add custom color picker
 
-Grapick is color picker independent and uses the browser's native one by default just to make it more accessible, but you can easily attach one of your choices.
+Grapick is color picker independent and uses the browser's native one, by default, just to make it more accessible, but you can easily switch it with one of your choices (recommended as not all browsers support properly `input[type=color]`).
 
-In the example below we use spectrum color picker just as the proof of concept
+In the example below we use [spectrum](https://github.com/bgrins/spectrum) color picker just as the proof of concept
 
 ```html
 <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -54,7 +57,6 @@ In the example below we use spectrum color picker just as the proof of concept
 <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
 
 <div id="gp"></div>
-
 
 <script type="text/javascript">
   const gp = new Grapick({
@@ -127,7 +129,7 @@ $ npm start
 
 ## API
 
-[API Reference here](./docs/API.md)
+[API Reference here](https://github.com/artf/grapick/wiki)
 
 
 

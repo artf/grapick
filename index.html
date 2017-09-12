@@ -5,17 +5,6 @@
     <title>Grapick Dev</title>
     <link rel="stylesheet" href="dist/grapick.min.css">
     <script src="dist/grapick.min.js"></script>
-
-    <!--
-    <link rel="stylesheet" href="private/colorjoe.css">
-    <script src="private/one-color-all.js"></script>
-    <script src="private/colorjoe.min.js"></script>
-    -->
-
-    <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
-
     <link href="https://fonts.googleapis.com/css?family=Romanesco" rel="stylesheet">
   </head>
   <body>
@@ -100,22 +89,7 @@
     </div>
 
     <script type="text/javascript">
-      var gp = new Grapick({el: '#grapick', min: 1, max: 99, colorEl: '<input id="colorpicker"/>'});
-
-      gp.setColorPicker(handler => {
-        const el = handler.getEl().querySelector('#colorpicker');
-        $(el).spectrum({
-            color: handler.getColor(),
-            showAlpha: true,
-            change(color) {
-              handler.setColor(color.toRgbString());
-            },
-            move(color) {
-              handler.setColor(color.toRgbString(), 0);
-            }
-        });
-      });
-
+      var gp = new Grapick({el: '#grapick', min: 1, max: 99});
       gp.addHandler(1, '#085078', 0);
       gp.addHandler(99, '#85D8CE', 0);
       gp.on('change', function(complete) {

@@ -6,6 +6,10 @@ const comparator = (l, r) => {
   return l.position - r.position;
 }
 
+/**
+ * Main Grapick class
+ * @extends EventEmitter
+ */
 export default class Grapick extends EventEmitter {
 
   constructor(options = {}) {
