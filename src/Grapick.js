@@ -16,27 +16,29 @@ export default class Grapick extends EventEmitter {
       // Class prefix
       pfx,
 
-      // HTMLElement/string el on which attach the gradient input
+      // HTMLElement/query string on which the gradient input will be attached
       el: `.${pfx}`,
 
+      // Element to use for the custom color picker, eg. '<div class="my-custom-el"></div>'
+      // Will be added inside the color picker container
       colorEl: '',
 
-      // Minimum handler position
+      // Minimum handler position, default: 0
       min: 0,
 
-      // Maximum handler position
+      // Maximum handler position, default: 100
       max: 100,
 
-      // Any supported direction: top, left, bottom, right, 90deg, etc.
+      // Any supported gradient direction: 'left' (default), 'top', 'bottom', 'right', '90deg', etc.
       direction: 'left',
 
-      // Gradient type, available options: 'linear' | 'radial' | 'repeating-linear' | 'repeating-radial'
+      // Gradient type, available options: 'linear' (default) | 'radial' | 'repeating-linear' | 'repeating-radial'
       type: 'linear',
 
-      // Gradient input height
+      // Gradient input height, default: '30px'
       height: '30px',
 
-      // Gradient input width
+      // Gradient input width, default: '100%'
       width: '100%',
     };
 
@@ -47,6 +49,11 @@ export default class Grapick extends EventEmitter {
 
     let el = options.el;
     el = typeof el == 'string' ? document.querySelector(el) : el;
+
+    if (!(el instanceof HTMLElement)) {
+      throw `Element not found, given ${el}`;
+    }
+
     this.el = el;
     this.handlers = [];
     this.options = options;
@@ -93,26 +100,28 @@ export default class Grapick extends EventEmitter {
    * console.log(ga.getValue());
    * // -> `linear-gradient(left, #000 0%, white 55%)`
    */
-  getValue() {
+  getValue(type, angle) {
     const color = this.getColorValue();
-    return color ? `${this.getType()}-gradient(${this.getDirection()}, ${color})` : '';
+    const t = type || this.getType();
+    const a = angle || this.getDirection();
+    return color ? `${t}-gradient(${a}, ${color})` : '';
   }
 
   /**
    * Get the gradient value with the browser prefix if necessary
    * @return {string}
    */
-  getSafeValue() {
+  getSafeValue(type, angle) {
     const previewEl = this.previewEl;
-    const value = this.getValue();
+    const value = this.getValue(type, angle);
     !this.sandEl && (this.sandEl = document.createElement('div'))
 
     if (!previewEl || !value) {
-      return;
+      return '';
     }
 
     const style = this.sandEl.style;
-    const values = [value, ...this.getPrefixedValues()];
+    const values = [value, ...this.getPrefixedValues(type, angle)];
 
     for (let i = 0; i < values.length; i++) {
       let val = values[i];
@@ -157,20 +166,11 @@ export default class Grapick extends EventEmitter {
    *  "-o-linear-gradient(left, #000 0%, white 55%)"
    * ]
    */
-  getPrefixedValues() {
-    const value = this.getValue();
+  getPrefixedValues(type, angle) {
+    const value = this.getValue(type, angle);
     return ['-moz-', '-webkit-', '-o-', '-ms-'].map(prefix =>
       `${prefix}${value}`);
   }
-
-  /**
-   * Set on change callback
-   * @param  {Function} clb Callback function
-   */
-  onChange(clb) {
-    this.onChangeClb = clb;
-  }
-
   /**
    * Trigger change
    * @param {Boolean} complete Indicates if the change is complete (eg. while dragging is not complete)
@@ -245,6 +245,17 @@ export default class Grapick extends EventEmitter {
   }
 
   /**
+   * Remove all handlers
+   */
+  clear() {
+    const handlers = this.handlers;
+
+    for (var i = handlers.length - 1; i >= 0; i--) {
+       handlers[i].remove();
+    }
+  }
+
+  /**
    * Return selected handler if one exists
    * @return {Handler|null}
    */
@@ -267,7 +278,7 @@ export default class Grapick extends EventEmitter {
    */
   updatePreview() {
     const previewEl = this.previewEl;
-    previewEl && (previewEl.style.background = this.getSafeValue());
+    previewEl && (previewEl.style.background = this.getSafeValue('linear', 'left'));
   }
 
   initEvents() {
@@ -306,7 +317,7 @@ export default class Grapick extends EventEmitter {
   }
 
   /**
-   * Render the preview picker
+   * Render the gradient picker
    */
   render() {
     const opt = this.options;
