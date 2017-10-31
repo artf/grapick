@@ -107,11 +107,11 @@ describe('Grapick', () => {
       expect(ga.getValue('radial', 'center')).toBe('radial-gradient(center, #000 0%, white 55%)');
     });
 
-    it.skip('Get safe value', () => {
-      // Doesn't work in jsdom, not able to attach inline linear-gradient
+    it('Get safe value', () => {
       ga.addHandler(0, '#000');
       ga.addHandler(55, 'white');
-      expect(ga.getSafeValue()).toBe('linear-gradient(left, #000 0%, white 55%)');
+      ga.setDirection('90deg');
+      expect(ga.getSafeValue()).toContain('linear-gradient(90deg, #000 0%, white 55%)');
     });
 
     it('Get prefixed values', () => {
