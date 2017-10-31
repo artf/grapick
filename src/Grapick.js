@@ -34,8 +34,8 @@ export default class Grapick extends EventEmitter {
       // Maximum handler position, default: 100
       max: 100,
 
-      // Any supported gradient direction: 'left' (default), 'top', 'bottom', 'right', '90deg', etc.
-      direction: 'left',
+      // Any supported gradient direction: '90deg' (default), 'top', 'bottom', 'right', '135deg', etc.
+      direction: '90deg',
 
       // Gradient type, available options: 'linear' (default) | 'radial' | 'repeating-linear' | 'repeating-radial'
       type: 'linear',
@@ -145,7 +145,7 @@ export default class Grapick extends EventEmitter {
       }
     }
 
-    return val;
+    return style.backgroundImage;
   }
 
 
