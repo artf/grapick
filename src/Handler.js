@@ -10,8 +10,17 @@ export default class Handler {
     this.gp = Grapick;
     this.position = position;
     this.color = color;
+    this.selected = 0;
     this.render();
     select && this.select();
+  }
+
+  toJSON() {
+    return {
+      position: this.position,
+      selected: this.selected,
+      color: this.color,
+    };
   }
 
   /**
@@ -105,14 +114,16 @@ export default class Handler {
 
   /**
    * Remove the current handler
+   * @param {Object} [options={}] Options
+   * @param {Boolean} [options.silent] Don't trigger events
    * @return {Handler} Removed handler (itself)
    */
-  remove() {
+  remove(options = {}) {
     const el = this.getEl();
     const handlers = this.gp.getHandlers();
     const removed = handlers.splice(handlers.indexOf(this), 1)[0];
     el && el.parentNode.removeChild(el);
-    this.emit('handler:remove', removed);
+    !options.silent && this.emit('handler:remove', removed);
     return removed;
   }
 

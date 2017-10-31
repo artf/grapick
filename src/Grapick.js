@@ -1,6 +1,7 @@
 import EventEmitter from 'tiny-emitter'
 import Handler from './Handler'
 import {on} from './utils'
+let timerChange;
 
 const comparator = (l, r) => {
   return l.position - r.position;
@@ -68,6 +69,7 @@ export default class Grapick extends EventEmitter {
     this.render();
   }
 
+
   /**
    * Set custom color picker
    * @param {Object} cp Color picker interface
@@ -98,6 +100,7 @@ export default class Grapick extends EventEmitter {
     this.colorPicker = cp;
   }
 
+
   /**
    * Get the complete style value
    * @return {string}
@@ -114,6 +117,7 @@ export default class Grapick extends EventEmitter {
     const a = angle || this.getDirection();
     return color ? `${t}-gradient(${a}, ${color})` : '';
   }
+
 
   /**
    * Get the gradient value with the browser prefix if necessary
@@ -144,6 +148,51 @@ export default class Grapick extends EventEmitter {
     return val;
   }
 
+
+   /**
+    * Parse and apply the value to the picker
+    * @param {string} value Any valid gradient string
+    * @param {Object} [options={}] Options
+    * @param {Boolean} [options.silent] Don't trigger events
+    * @example
+    * ga.setValue('linear-gradient(90deg, rgba(18, 215, 151, 0.75) 31.25%, white 85.1562%)');
+    * ga.setValue('-webkit-radial-gradient(left, red 10%, blue 85%)');
+    */
+  setValue(value = '', options = {}) {
+    let start = value.indexOf('(') + 1;
+    let end = value.lastIndexOf(')');
+    let gradients = value.substring(start, end);
+
+    if (!gradients) {
+      return;
+    }
+
+    let direction = this.direction;
+    let type = this.type;
+    const values = gradients.split(/,(?![^(]*\)) /);
+    this.clear(options);
+
+    if (values.length > 2) {
+      direction = values.shift();
+    }
+
+    if (value.indexOf('linear-gradient') > -1) {
+      type = 'linear';
+    } else if (value.indexOf('radial-gradient') > -1) {
+      type = 'radial';
+    }
+
+    this.setDirection(direction, options);
+    this.setType(type, options);
+    values.forEach(value => {
+      const hdlValues = value.split(' ');
+      const position = parseFloat(hdlValues.pop());
+      const color = hdlValues.join('');
+      this.addHandler(position, color, 0, options);
+    })
+  }
+
+
   /**
    * Get only colors value
    * @return {string}
@@ -160,6 +209,7 @@ export default class Grapick extends EventEmitter {
     handlers = handlers.length == 1 ? [handlers[0], handlers[0]] : handlers;
     return handlers.map(handler => handler.getValue()).join(', ');
   }
+
 
   /**
    * Get an array with browser specific values
@@ -180,23 +230,34 @@ export default class Grapick extends EventEmitter {
     return ['-moz-', '-webkit-', '-o-', '-ms-'].map(prefix =>
       `${prefix}${value}`);
   }
+
+
   /**
    * Trigger change
    * @param {Boolean} complete Indicates if the change is complete (eg. while dragging is not complete)
+   * @param {Object} [options={}] Options
+   * @param {Boolean} [options.silent] Don't trigger events
    */
-  change(complete = 1) {
+  change(complete = 1, options = {}) {
     this.updatePreview();
-    this.emit('change', complete);
+    !options.silent && this.emit('change', complete);
+    // TODO can't make it work with jsdom
+    //timerChange && clearTimeout(timerChange);
+    //timerChange = setTimeout(() => this.emit('change', complete), 0);
   }
+
 
   /**
    * Set gradient direction, eg. 'top', 'left', 'bottom', 'right', '90deg', etc.
    * @param {string} direction Any supported direction
+   * @param {Object} [options={}] Options
+   * @param {Boolean} [options.silent] Don't trigger events
    */
-  setDirection(direction) {
+  setDirection(direction, options = {}) {
     this.options.direction = direction;
-    this.change();
+    this.change(1, options);
   }
+
 
   /**
    * Set gradient direction, eg. 'top', 'left', 'bottom', 'right', '90deg', etc.
@@ -206,14 +267,18 @@ export default class Grapick extends EventEmitter {
     return this.options.direction;
   }
 
+
   /**
    * Set gradient type, available options: 'linear' or 'radial'
    * @param {string} direction Any supported direction
+   * @param {Object} [options={}] Options
+   * @param {Boolean} [options.silent] Don't trigger events
    */
-  setType(type) {
+  setType(type, options = {}) {
     this.options.type = type;
-    this.change();
+    this.change(1, options);
   }
+
 
   /**
    * Get gradient type
@@ -223,18 +288,22 @@ export default class Grapick extends EventEmitter {
     return this.options.type;
   }
 
+
   /**
    * Add gradient handler
    * @param {integer} position Position integer in percentage
    * @param {string} color Color string, eg. red, #123, 'rgba(30,87,153,1)', etc..
    * @param {Boolean} select Select the handler once it's added
+   * @param {Object} [options={}] Options
+   * @param {Boolean} [options.silent] Don't trigger events
    * @return {Object} Handler object
    */
-  addHandler(position, color, select = 1) {
+  addHandler(position, color, select = 1, options = {}) {
     const handler = new Handler(this, position, color, select);
-    this.emit('handler:add', handler);
+    !options.silent && this.emit('handler:add', handler);
     return handler;
   }
+
 
   /**
    * Get handler by index
@@ -245,6 +314,7 @@ export default class Grapick extends EventEmitter {
     return this.handlers[index];
   }
 
+
   /**
    * Get all handlers
    * @return {Array}
@@ -253,16 +323,24 @@ export default class Grapick extends EventEmitter {
     return this.handlers;
   }
 
+
   /**
    * Remove all handlers
+   * @param {Object} [options={}] Options
+   * @param {Boolean} [options.silent] Don't trigger events
+   * @example
+   * ga.clear();
+   * // Don't trigger events
+   * ga.clear({silent: 1});
    */
-  clear() {
+  clear(options = {}) {
     const handlers = this.handlers;
 
     for (var i = handlers.length - 1; i >= 0; i--) {
-       handlers[i].remove();
+       handlers[i].remove(options);
     }
   }
+
 
   /**
    * Return selected handler if one exists
@@ -282,6 +360,7 @@ export default class Grapick extends EventEmitter {
     return null;
   }
 
+
   /**
    * Update preview element
    */
@@ -289,6 +368,7 @@ export default class Grapick extends EventEmitter {
     const previewEl = this.previewEl;
     previewEl && (previewEl.style.background = this.getSafeValue('linear', 'left'));
   }
+
 
   initEvents() {
     const opt = this.options;
@@ -324,6 +404,7 @@ export default class Grapick extends EventEmitter {
       this.addHandler(percentage, color);
     });
   }
+
 
   /**
    * Render the gradient picker
