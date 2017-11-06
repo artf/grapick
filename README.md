@@ -45,6 +45,22 @@ You can download the file from [here](https://cdn.rawgit.com/artf/grapick/master
 
 
 
+# Configurations
+
+* `pfx` - Class prefix (string)
+* `el` - Element on which the picker will be attached (HTMLElement or query string)
+* `colorEl` - Element to use for the custom color picker, eg. '<div class="my-custom-el"></div>'
+* `min` - Minimum handler position, default: 0 (integer)
+* `max` - Maximum handler position, default: 100 (integer)
+* `direction` - Any supported gradient direction: '90deg' (default), 'top', 'bottom', 'right', '135deg', etc.
+* `type` - Gradient type, available options: 'linear' (default) | 'radial' | 'repeating-linear' | 'repeating-radial'
+* `height` - Gradient input height, default: '30px'
+* `width` - Gradient input width, default: '100%'
+
+
+
+
+
 ## Add custom color picker
 
 Grapick is color picker independent and uses the browser's native one, by default, just to make it more accessible, but you can easily switch it with one of your choices (recommended as not all browsers support properly `input[type=color]`).
