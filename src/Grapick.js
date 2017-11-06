@@ -7,6 +7,8 @@ const comparator = (l, r) => {
   return l.position - r.position;
 }
 
+const typeName = name => `${name}-gradient(`;
+
 /**
  * Main Grapick class
  * @extends EventEmitter
@@ -159,28 +161,31 @@ export default class Grapick extends EventEmitter {
     * ga.setValue('-webkit-radial-gradient(left, red 10%, blue 85%)');
     */
   setValue(value = '', options = {}) {
+    let type = this.type;
+    let direction = this.direction;
     let start = value.indexOf('(') + 1;
     let end = value.lastIndexOf(')');
     let gradients = value.substring(start, end);
-
-    if (!gradients) {
-      return;
-    }
-
-    let direction = this.direction;
-    let type = this.type;
     const values = gradients.split(/,(?![^(]*\)) /);
     this.clear(options);
+
+    if (!gradients) {
+      this.updatePreview();
+      return;
+    }
 
     if (values.length > 2) {
       direction = values.shift();
     }
 
-    if (value.indexOf('linear-gradient') > -1) {
-      type = 'linear';
-    } else if (value.indexOf('radial-gradient') > -1) {
-      type = 'radial';
-    }
+    let typeFound;
+    const types = ['repeating-linear', 'repeating-radial', 'linear', 'radial'];
+    types.forEach(name => {
+      if (value.indexOf(typeName(name)) > -1 && !typeFound) {
+        typeFound = 1;
+        type = name;
+      }
+    })
 
     this.setDirection(direction, options);
     this.setType(type, options);
@@ -190,6 +195,7 @@ export default class Grapick extends EventEmitter {
       const color = hdlValues.join('');
       this.addHandler(position, color, 0, options);
     })
+    this.updatePreview();
   }
 
 
@@ -366,7 +372,7 @@ export default class Grapick extends EventEmitter {
    */
   updatePreview() {
     const previewEl = this.previewEl;
-    previewEl && (previewEl.style.background = this.getSafeValue('linear', 'left'));
+    previewEl && (previewEl.style.background = this.getSafeValue('linear', 'to left'));
   }
 
 
