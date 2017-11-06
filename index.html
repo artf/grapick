@@ -89,11 +89,16 @@
     </div>
 
     <script type="text/javascript">
-      var gp = new Grapick({el: '#grapick', min: 1, max: 99});
+      var gp = new Grapick({
+        el: '#grapick',
+        direction: 'to right',
+        min: 1,
+        max: 99,
+      });
       gp.addHandler(1, '#085078', 0);
       gp.addHandler(99, '#85D8CE', 0);
       gp.on('change', function(complete) {
-        document.body.style.background = gp.getSafeValue();
+        document.body.style.backgroundImage = gp.getSafeValue();
       })
       gp.emit('change');
 

@@ -25,6 +25,8 @@ $grp-preview-bg: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZ
     width: 4px;
     margin-left: -2px;
     user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
     height: 100%;
 
     &-close {
