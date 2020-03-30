@@ -54,8 +54,5 @@
         }
       ]
     ]
-  },
-  "dependencies": {
-    "tiny-emitter": "^2.0.2"
   }
 }

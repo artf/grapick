@@ -1,4 +1,4 @@
-import EventEmitter from 'tiny-emitter'
+import EventEmitter from './emitter'
 import Handler from './Handler'
 import {on} from './utils'
 let timerChange;
