@@ -1,6 +1,6 @@
 {
   "name": "grapick",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Easy configurable gradient picker, with no dependencies",
   "author": "Artur Arseniev",
   "main": "dist/grapick.min.js",
