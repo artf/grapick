@@ -91,14 +91,16 @@
     <script type="text/javascript">
       var gp = new Grapick({
         el: '#grapick',
-        direction: 'to right',
+        direction: '90deg',
         min: 1,
         max: 99,
       });
       gp.addHandler(1, '#085078', 1);
       gp.addHandler(99, '#85D8CE', 1, { keepSelect: 1 });
       gp.on('change', function(complete) {
-        document.body.style.backgroundImage = gp.getValue();
+        const value = gp.getValue();
+        document.body.style.backgroundImage = value;
+        console.log('BG value', value, { complete });
       })
       gp.emit('change');
 

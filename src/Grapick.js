@@ -397,7 +397,7 @@ export default class Grapick extends EventEmitter {
    */
   updatePreview() {
     const previewEl = this.previewEl;
-    previewEl && (previewEl.style.backgroundImage = this.getSafeValue('linear', 'to right'));
+    previewEl && (previewEl.style.backgroundImage = this.getValue('linear', 'to right'));
   }
 
 

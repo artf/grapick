@@ -153,17 +153,20 @@ export default class Handler {
     const colorWrapEl = el.querySelector('[data-toggle=handler-color-wrap]');
     const colorEl = el.querySelector('[data-toggle=handler-color]');
     const dragEl = el.querySelector('[data-toggle=handler-drag]');
+    const upColor = (ev, complete = 1)  => {
+      const { value } = ev.target;
+      this.setColor(value, complete);
+      colorWrapEl && (colorWrapEl.style.backgroundColor = value);
+    }
     colorContEl && on(colorContEl, 'click', e => e.stopPropagation());
     closeEl && on(closeEl, 'click', e => {
       e.stopPropagation();
       this.remove()
     });
-    colorEl && on(colorEl, 'change', e => {
-      const target = e.target;
-      const value = target.value;
-      this.setColor(value);
-      colorWrapEl && (colorWrapEl.style.backgroundColor = value);
-    });
+    if (colorEl) {
+      on(colorEl, 'change', upColor);
+      on(colorEl, 'input', ev => upColor(ev, 0));
+    }
 
     if (dragEl) {
       let pos = 0;
