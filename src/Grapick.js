@@ -394,6 +394,9 @@ export default class Grapick extends EventEmitter {
       if (percentage > max || percentage < min) {
         return;
       }
+      if(y > elDim.h || y < 0){
+        return;
+      }
 
       // Now let's find the pixel color by using the canvas
       let canvas = document.createElement('canvas');
