@@ -56,6 +56,7 @@ You can download the file from [here](https://cdn.rawgit.com/artf/grapick/master
 * `type` - Gradient type, available options: 'linear' (default) | 'radial' | 'repeating-linear' | 'repeating-radial'
 * `height` - Gradient input height, default: '30px'
 * `width` - Gradient input width, default: '100%'
+* `emptyColor` - Default empty color (when you click on an empty color picker area)
 
 
 

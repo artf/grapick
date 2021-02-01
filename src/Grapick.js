@@ -46,6 +46,9 @@ export default class Grapick extends EventEmitter {
 
       // Gradient input width, default: '100%'
       width: '100%',
+
+      // Default empty color (when you click on an empty color picker)
+      emptyColor: '#000',
     };
 
     for (let name in defaults) {
@@ -432,7 +435,8 @@ export default class Grapick extends EventEmitter {
       canvas.style.background = 'black';
       const rgba = canvas.getContext('2d').getImageData(x, y, 1, 1).data;
       const color = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3]})`;
-      this.addHandler(percentage, color);
+      const fc = color == 'rgba(0, 0, 0, 0)' ? opt.emptyColor : color;
+      this.addHandler(percentage, fc);
     });
   }
 
