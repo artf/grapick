@@ -13,3 +13,5 @@ export function off(el, ev, fn) {
     el.removeEventListener(ev[i], fn);
   }
 }
+
+export const isFunction = fn => typeof fn === 'function';

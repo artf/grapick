@@ -1,7 +1,6 @@
 import EventEmitter from './emitter'
 import Handler from './Handler'
-import {on} from './utils'
-let timerChange;
+import { on } from './utils'
 
 const comparator = (l, r) => {
   return l.position - r.position;
@@ -71,6 +70,24 @@ export default class Grapick extends EventEmitter {
     this.render();
   }
 
+  /**
+   * Destroy Grapick
+   */
+  destroy() {
+    this.clear();
+    this.e = {}; // Clear all events;
+    [ // Clear the state
+      'el', 'handlers', 'options', 'colorPicker',
+    ].forEach(i => this[i] = 0);
+    [ // Remove DOM elements
+      'wrapperEl', 'previewEl', 'sandEl',
+    ].forEach(key => {
+      const el = this[key];
+      el && el.parentNode && el.parentNode.removeChild(el);
+      delete this[key];
+    });
+  }
+
 
   /**
    * Set custom color picker
@@ -96,6 +113,12 @@ export default class Grapick extends EventEmitter {
    *    $(colorEl).colorPicker2({...}).on('change', () => {
    *      handler.setColor(this.value);
    *    })
+   *
+   *    // In order to avoid memory leaks, return a function and call there
+   *    // the destroy method of you color picker instance
+   *    return () => {
+   *      // destroy your color picker instance
+   *    }
    * })
    */
   setColorPicker(cp) {
@@ -300,12 +323,12 @@ export default class Grapick extends EventEmitter {
    * @param {integer} position Position integer in percentage
    * @param {string} color Color string, eg. red, #123, 'rgba(30,87,153,1)', etc..
    * @param {Boolean} select Select the handler once it's added
-   * @param {Object} [options={}] Options
+   * @param {Object} [options={}] Handler options
    * @param {Boolean} [options.silent] Don't trigger events
    * @return {Object} Handler object
    */
   addHandler(position, color, select = 1, options = {}) {
-    const handler = new Handler(this, position, color, select);
+    const handler = new Handler(this, position, color, select, options);
     !options.silent && this.emit('handler:add', handler);
     return handler;
   }

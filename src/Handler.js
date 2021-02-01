@@ -1,11 +1,11 @@
-import {on, off} from './utils'
+import {on, off, isFunction } from './utils'
 
 /**
  * Handler is the color stop of the gradient
  */
 export default class Handler {
 
-  constructor(Grapick, position = 0, color = 'black', select = 1) {
+  constructor(Grapick, position = 0, color = 'black', select = 1, otps = {}) {
     Grapick.getHandlers().push(this);
     this.gp = Grapick;
     this.position = position;
@@ -119,11 +119,13 @@ export default class Handler {
    * @return {Handler} Removed handler (itself)
    */
   remove(options = {}) {
+    const { cpFn } = this;
     const el = this.getEl();
     const handlers = this.gp.getHandlers();
     const removed = handlers.splice(handlers.indexOf(this), 1)[0];
     el && el.parentNode.removeChild(el);
     !options.silent && this.emit('handler:remove', removed);
+    isFunction(cpFn) && cpFn(this);
     return removed;
   }
 
@@ -257,7 +259,7 @@ export default class Handler {
     previewEl.appendChild(hEl);
     this.el = hEl;
     this.initEvents();
-    colorPicker && colorPicker(this);
+    this.cpFn = colorPicker && colorPicker(this);
     return hEl;
   }
 }
