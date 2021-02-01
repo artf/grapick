@@ -145,8 +145,10 @@ export default class Grapick extends EventEmitter {
 
 
   /**
-   * Get the gradient value with the browser prefix if necessary
+   * Get the gradient value with the browser prefix if necessary.
+   * The usage of this method is deprecated (noticed weird behaviors in modern browsers).
    * @return {string}
+   * @deprecated
    */
   getSafeValue(type, angle) {
     const previewEl = this.previewEl;

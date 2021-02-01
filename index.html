@@ -98,7 +98,7 @@
       gp.addHandler(1, '#085078', 1);
       gp.addHandler(99, '#85D8CE', 1, { keepSelect: 1 });
       gp.on('change', function(complete) {
-        document.body.style.backgroundImage = gp.getSafeValue();
+        document.body.style.backgroundImage = gp.getValue();
       })
       gp.emit('change');
 
