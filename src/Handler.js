@@ -5,14 +5,14 @@ import {on, off, isFunction } from './utils'
  */
 export default class Handler {
 
-  constructor(Grapick, position = 0, color = 'black', select = 1, otps = {}) {
+  constructor(Grapick, position = 0, color = 'black', select = 1, opts = {}) {
     Grapick.getHandlers().push(this);
     this.gp = Grapick;
     this.position = position;
     this.color = color;
     this.selected = 0;
     this.render();
-    select && this.select();
+    select && this.select(opts);
   }
 
   toJSON() {
@@ -85,11 +85,13 @@ export default class Handler {
 
   /**
    * Select the current handler and deselect others
+   * @param {Object} [options={}] Options
+   * @param {Boolean} [options.keepSelect=false] Avoid deselecting other handlers
    */
-  select() {
+  select(opts = {}) {
     const el = this.getEl();
     const handlers = this.gp.getHandlers();
-    handlers.forEach(handler => handler.deselect());
+    !opts.keepSelect && handlers.forEach(handler => handler.deselect());
     this.selected = 1;
     const clsNameSel = this.getSelectedCls();
     el && (el.className += ` ${clsNameSel}`);
