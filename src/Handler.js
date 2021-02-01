@@ -62,7 +62,9 @@ export default class Handler {
    * @return {integer} Position integer
    */
   getPosition() {
-    return this.position;
+    const { position, gp } = this;
+    const { onValuePos } = gp.options;
+    return isFunction(onValuePos) ? onValuePos(position) : position;
   }
 
   /**

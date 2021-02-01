@@ -57,6 +57,7 @@ You can download the file from [here](https://cdn.rawgit.com/artf/grapick/master
 * `height` - Gradient input height, default: '30px'
 * `width` - Gradient input width, default: '100%'
 * `emptyColor` - Default empty color (when you click on an empty color picker area)
+* `onValuePos` - Format handler position value, default (to avoid floats): val => parseInt(val)
 
 
 

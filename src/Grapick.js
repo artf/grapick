@@ -49,6 +49,9 @@ export default class Grapick extends EventEmitter {
 
       // Default empty color (when you click on an empty color picker)
       emptyColor: '#000',
+
+      // Format handler position value, default (to avoid floats): val => parseInt(val)
+      onValuePos: val => parseInt(val),
     };
 
     for (let name in defaults) {
@@ -142,7 +145,15 @@ export default class Grapick extends EventEmitter {
   getValue(type, angle) {
     const color = this.getColorValue();
     const t = type || this.getType();
-    const a = angle || this.getDirection();
+    let a = angle || this.getDirection();
+
+    if (
+      t == 'linear' &&
+      ['top', 'left', 'bottom', 'right', 'center'].indexOf(a) >= 0
+    ) {
+      a = a === 'center' ? 'to right' : `to ${a}`;
+    }
+
     return color ? `${t}-gradient(${a}, ${color})` : '';
   }
 
