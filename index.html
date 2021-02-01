@@ -108,11 +108,11 @@
       var swAngle = document.getElementById('switch-angle');
 
       swType.addEventListener('change', function(e) {
-        gp.setType(this.value);
+        gp.setType(this.value || 'linear');
       })
 
       swAngle.addEventListener('change', function(e) {
-        gp.setDirection(this.value);
+        gp.setDirection(this.value || 'right');
       })
     </script>
   </body>
