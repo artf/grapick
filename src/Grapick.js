@@ -419,10 +419,10 @@ export default class Grapick extends EventEmitter {
       const y = e.offsetY - pEl.clientTop;
       percentage = x / elDim.w * 100;
 
-      if (percentage > max || percentage < min) {
-        return;
-      }
-      if(y > elDim.h || y < 0){
+      if (
+        percentage > max || percentage < min ||
+        y > elDim.h || y < 0
+      ) {
         return;
       }
 
