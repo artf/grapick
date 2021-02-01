@@ -144,17 +144,25 @@ export default class Grapick extends EventEmitter {
    */
   getValue(type, angle) {
     const color = this.getColorValue();
-    const t = type || this.getType();
-    let a = angle || this.getDirection();
+    const tp = type || this.getType();
+    const defDir = ['top', 'left', 'bottom', 'right', 'center'];
+    let ang = angle || this.getDirection();
 
     if (
-      t == 'linear' &&
-      ['top', 'left', 'bottom', 'right', 'center'].indexOf(a) >= 0
+      ['linear', 'repeating-linear'].indexOf(tp) >= 0
+      && defDir.indexOf(ang) >= 0
     ) {
-      a = a === 'center' ? 'to right' : `to ${a}`;
+      ang = ang === 'center' ? 'to right' : `to ${ang}`;
     }
 
-    return color ? `${t}-gradient(${a}, ${color})` : '';
+    if (
+      ['radial', 'repeating-radial'].indexOf(tp) >= 0
+      && defDir.indexOf(ang) >= 0
+    ) {
+      ang = `circle at ${ang}`;
+    }
+
+    return color ? `${tp}-gradient(${ang}, ${color})` : '';
   }
 
 
