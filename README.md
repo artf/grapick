@@ -84,8 +84,9 @@ In the example below we use [spectrum](https://github.com/bgrins/spectrum) color
 
   gp.setColorPicker(handler => {
     const el = handler.getEl().querySelector('#colorpicker');
+    const $el = $(el);
 
-    $(el).spectrum({
+    $el.spectrum({
         color: handler.getColor(),
         showAlpha: true,
         change(color) {
@@ -95,6 +96,11 @@ In the example below we use [spectrum](https://github.com/bgrins/spectrum) color
           handler.setColor(color.toRgbString(), 0);
         }
     });
+
+    // return a function in order to destroy the custom color picker
+    return () => {
+      $el.spectrum('destroy');
+    }
   });
 </script>
 ```
