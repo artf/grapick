@@ -1,4 +1,4 @@
-import {on, off, isFunction } from './utils'
+import {on, off, isFunction, isDef, getPointerEvent } from './utils'
 
 /**
  * Handler is the color stop of the gradient
@@ -180,9 +180,10 @@ export default class Handler {
       const deltaPos = {};
       const axis = 'x';
       const drag = e => {
+        const evP = getPointerEvent(e);
         dragged = 1;
-        deltaPos.x = e.clientX - startPos.x;
-        deltaPos.y = e.clientY - startPos.y;
+        deltaPos.x = evP.clientX - startPos.x;
+        deltaPos.y = evP.clientY - startPos.y;
         pos = (axis == 'x' ? deltaPos.x : deltaPos.y) * 100;
         pos = pos / (axis == 'x' ? elDim.w : elDim.h);
         pos = posInit + pos;
@@ -191,7 +192,7 @@ export default class Handler {
         this.setPosition(pos, 0);
         this.emit('handler:drag', this, pos);
         // In case the mouse button was released outside of the window
-        e.which === 0 && stopDrag(e);
+        isDef(e.button) && e.which === 0 && stopDrag(e);
       };
       const stopDrag = e => {
         if (!dragged) {
@@ -205,15 +206,16 @@ export default class Handler {
       };
       const initDrag = e => {
         //Right or middel click
-        if (e.button !== 0) {
+        if (isDef(e.button) && e.button !== 0) {
           return;
         }
         this.select();
+        const evP = getPointerEvent(e);
         posInit = this.position;
         elDim.w = previewEl.clientWidth;
         elDim.h = previewEl.clientHeight;
-        startPos.x = e.clientX;
-        startPos.y = e.clientY;
+        startPos.x = evP.clientX;
+        startPos.y = evP.clientY;
         on(document, eventMove, drag);
         on(document, eventUp, stopDrag);
         this.emit('handler:drag:start', this);
