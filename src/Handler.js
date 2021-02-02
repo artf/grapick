@@ -130,6 +130,7 @@ export default class Handler {
     el && el.parentNode.removeChild(el);
     !options.silent && this.emit('handler:remove', removed);
     isFunction(cpFn) && cpFn(this);
+    ['el', 'gp'].forEach(i => this[i] = 0);
     return removed;
   }
 
