@@ -195,13 +195,13 @@ export default class Handler {
         isDef(e.button) && e.which === 0 && stopDrag(e);
       };
       const stopDrag = e => {
+        off(document, eventMove, drag);
+        off(document, eventUp, stopDrag);
         if (!dragged) {
           return;
         }
         dragged = 0;
         this.setPosition(pos);
-        off(document, eventMove, drag);
-        off(document, eventUp, stopDrag);
         this.emit('handler:drag:end', this, pos);
       };
       const initDrag = e => {
