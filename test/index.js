@@ -104,7 +104,7 @@ describe('Grapick', () => {
     it('Get value with passed type and angle', () => {
       ga.addHandler(0, '#000');
       ga.addHandler(55, 'white');
-      expect(ga.getValue('radial', 'center')).toBe('radial-gradient(center, #000 0%, white 55%)');
+      expect(ga.getValue('radial', 'center')).toBe('radial-gradient(circle at center, #000 0%, white 55%)');
     });
 
     it.skip('Get safe value', () => {
