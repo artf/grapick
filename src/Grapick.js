@@ -86,7 +86,7 @@ export default class Grapick extends EventEmitter {
       'el', 'handlers', 'options', 'colorPicker',
     ].forEach(i => this[i] = 0);
     [ // Remove DOM elements
-      'wrapperEl', 'previewEl', 'sandEl',
+      'previewEl', 'wrapperEl', 'sandEl',
     ].forEach(key => {
       const el = this[key];
       el && el.parentNode && el.parentNode.removeChild(el);
@@ -424,19 +424,18 @@ export default class Grapick extends EventEmitter {
 
 
   initEvents() {
-    const opt = this.options;
-    const min = opt.min;
-    const max = opt.max;
     const pEl = this.previewEl;
-    let percentage = 0;
-    const elDim = {};
     pEl && on(pEl, 'click', e => {
       // First of all, find a position of the click in percentage
-      elDim.w = pEl.clientWidth;
-      elDim.h = pEl.clientHeight;
+      const opt = this.options;
+      const { min, max } = opt;
+      const elDim = {
+        w: pEl.clientWidth,
+        h: pEl.clientHeight,
+      };
       const x = e.offsetX - pEl.clientLeft;
       const y = e.offsetY - pEl.clientTop;
-      percentage = x / elDim.w * 100;
+      const percentage = x / elDim.w * 100;
 
       if (
         percentage > max || percentage < min ||

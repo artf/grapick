@@ -129,6 +129,10 @@
     </div>
 
     <script type="text/javascript">
+      var upType, unAngle, gp;
+      var copyTxt = document.querySelector('.txt-value');
+      var swType = document.getElementById('switch-type');
+      var swAngle = document.getElementById('switch-angle');
       var copyToClipboard = function(str) {
         var el = document.createElement('textarea');
         el.value = str;
@@ -140,44 +144,47 @@
         document.execCommand('copy');
         document.body.removeChild(el);
       };
-      var copyTxt = document.querySelector('.txt-value');
-      var gp = new Grapick({
-        el: '#grapick',
-        direction: 'right',
-        min: 1,
-        max: 99,
-      });
-      gp.addHandler(1, '#085078', 1);
-      gp.addHandler(99, '#85D8CE', 1, { keepSelect: 1 });
-      gp.on('change', function(complete) {
-        const value = gp.getValue();
-        document.body.style.backgroundImage = value;
-        copyTxt.value = value;
-        // console.log('BG value', value, { complete });
-      })
-      gp.emit('change');
-
-      var swType = document.getElementById('switch-type');
-      var swAngle = document.getElementById('switch-angle');
-      var copyBtn = document.querySelector('.copy-btn');
-
       swType.addEventListener('change', function(e) {
-        gp.setType(this.value || 'linear');
+        gp && gp.setType(this.value || 'linear');
       });
 
       swAngle.addEventListener('change', function(e) {
-        gp.setDirection(this.value || 'right');
+        gp && gp.setDirection(this.value || 'right');
       });
 
+      var copyBtn = document.querySelector('.copy-btn');
       copyBtn.addEventListener('click', function(e) {
-        // var iconOrig = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 16V4H8v12h12m2 0c0 1.1-.9 2-2 2H8a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2h12c1.1 0 2 .9 2 2v12m-6 4v2H4c-1.1 0-2-.9-2-2V7h2v13h12z"></path></svg>';
-        // var iconDone = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 16v-6h2v6c0 1.1-.9 2-2 2H8a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2h8v2H8v12h12m-9.09-8.92L14 10.17l6.59-6.59L22 5l-8 8-4.5-4.5 1.41-1.42M16 20v2H4c-1.1 0-2-.9-2-2V7h2v13h12z"></path></svg>';
         var iconOrig = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 21H8V7h11m0-2H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2m-3-4H4c-1.1 0-2 .9-2 2v14h2V3h12V1z"></path></svg>';
         var iconDone = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 7L9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59 21 7z"></path></svg>';
         copyToClipboard(copyTxt.value);
         copyBtn.innerHTML = iconDone;
         setTimeout(() => copyBtn.innerHTML = iconOrig, 2000)
       });
+
+      var createGrapick = function() {
+        gp = new Grapick({
+          el: '#grapick',
+          direction: 'right',
+          min: 1,
+          max: 99,
+        });
+        gp.addHandler(1, '#085078', 1);
+        gp.addHandler(99, '#85D8CE', 1, { keepSelect: 1 });
+        gp.on('change', function(complete) {
+          const value = gp.getValue();
+          document.body.style.backgroundImage = value;
+          copyTxt.value = value;
+        })
+        gp.emit('change');
+      };
+
+      var destroyGrapick = function() {
+        gp.destroy();
+        gp = 0;
+      }
+
+      createGrapick();
+      // createGrapick(); destroyGrapick();
     </script>
   </body>
 </html>
