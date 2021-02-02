@@ -308,7 +308,8 @@ export default class Grapick extends EventEmitter {
    */
   setDirection(direction, options = {}) {
     this.options.direction = direction;
-    this.change(1, options);
+    const { complete = 1 } = options;
+    this.change(complete, options);
   }
 
 
@@ -329,7 +330,8 @@ export default class Grapick extends EventEmitter {
    */
   setType(type, options = {}) {
     this.options.type = type;
-    this.change(1, options);
+    const { complete = 1 } = options;
+    this.change(complete, options);
   }
 
 
